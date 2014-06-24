@@ -31,15 +31,15 @@ function tsc_shortcode_accept( $atts, $content ){
 function tsc_shortcode_mc( $atts, $content ){
 	//Set defaults for attributes
 	extract( shortcode_atts( array(
-		'require' => 'yes',
+		'require' => 'yes', //this will often be required, DEFAULT
 		'correct' => 'nonecorrect',
-		'options' => null,
-		'grade' => 'yes'
+		'options' => null, //options can be added as options="option1; option2; option3; etc..."
+		'grade' => 'yes' //FUTURE
 	), $atts, 'tsc_mc' ) );
 	
 	$name = tsc_shortcode_init();
 	
-	if( $require == 'yes' && $correct != 'nonecorrect' ) {
+	if( $require == 'yes' && $correct != 'nonecorrect' ) { //if there is no correct option set, the question is not required
 		$required = 'required';
 	} else {
 		$required = '';
@@ -111,14 +111,15 @@ function tsc_shortcode_continue( $atts, $content ){
 	$last = count($namearray) - 1;
 	$sccount = $namearray[$last];
 	
-	if( $sccount === '1' ){
+	if( $sccount === '1' ){ //if this is the first thing, there is not really a form here
 		$url = tscmod_next_url();
 		if( $content != "" ){
 			$echovalue = '<a href="'.$url.'"><input type="button" value="'.$content.'" /></a>';
 		} else {
 			$echovalue = '<a href="'.$url.'"><input type="button" value="Continue" /></a>';
 		}
-	}else{
+		$echovalue .= '</form></div>'; //still need to close the form which we wont be submitting (admin bar bugfix)
+	}else{ //if this isnt the first form element, we should prepare to submit the form
 		$current_user = wp_get_current_user();
 		$consultant_rid = $current_user->user_login; //user name is Royal ID
 		$consultant_name = $current_user->user_firstname . ' ' . $current_user->user_lastname;
@@ -138,7 +139,7 @@ function tsc_shortcode_continue( $atts, $content ){
 			$echovalue .= '<p><input type="submit" name="tsc_submit" /></p>';
 		}
 		
-		$echovalue .= tsc_score_form();
+		$echovalue .= tsc_score_form(); //adds hidden field, nothing else yet
 		
 		$echovalue .= '</form></div>';
 		
@@ -162,7 +163,7 @@ function tsc_shortcode_init(){
 	if( $sccount == 1 ) echo '<div id="tsc_form"><form method="post" autocomplete="off" action="" name="tscmod_form">';
 
 	$post_name = $post->post_name;
-	return $post_name.'-'.$sccount;
+	return $post_name.'-'.$sccount; //field names will be "post_slug-item_number"
 }
 
 function find_consultant( $RID, $fullname ){
@@ -197,21 +198,21 @@ function tsc_submit_data( $consultant_id ){
 	global $name;
 	$post_name = $post->post_name;
 	
-	if( isset( $_POST['tsc_submit'] ) ){
-		foreach( $_POST as $fullkey => $result ){
-			$pos = strpos($fullkey , $post_name);
+	if( isset( $_POST['tsc_submit'] ) ){ //if form data was sent
+		foreach( $_POST as $fullkey => $result ){ //read off each value
+			$pos = strpos($fullkey , $post_name); //keep only the ones that matter to us ("tsc_")
 			if ( $pos === 0 && $result != '' && !empty( $result ) ){
-				$key = str_replace( $post_name.'-', '', $fullkey );
-				$resultsarray[$key] = $result;
+				$key = str_replace( $post_name.'-', '', $fullkey ); //remove tsc_
+				$resultsarray[$key] = $result; //make an array with the values
 			}
 		}
-		$module = 'tscmod_'.$post_name;
-		update_post_meta( $consultant_id, $module, $resultsarray );
-		if( !empty($_POST['tsc_comments']) ){
+		$module = 'tscmod_'.$post_name; //the array which stores the results should include identifying info
+		update_post_meta( $consultant_id, $module, $resultsarray ); //save it as custom metadata
+		if( !empty($_POST['tsc_comments']) ){ //add the comments to the content, if any
 			$date = date ( 'M d, Y');
-			$comments = 'On '.$date.' the consultant wrote: '.$_POST['tsc_comments'];
+			$comments = 'On '.$date.' the consultant wrote: '.$_POST['tsc_comments']; //add the date
 			$oldcomments = get_post_field( 'post_content', $consultant_id );
-			if( !empty( $oldcomments ) ){
+			if( !empty( $oldcomments ) ){ //keep any older comments
 				$comments .= "\n\n".$oldcomments;
 			}
 			wp_update_post( array('ID' => $consultant_id, 'post_content' => $comments) );
@@ -220,7 +221,7 @@ function tsc_submit_data( $consultant_id ){
 	}
 }
 
-function tsc_score_form(){
+function tsc_score_form(){ //FUTURE
 	global $post;
 	global $name;
 	
@@ -230,21 +231,21 @@ function tsc_score_form(){
 	//will probably add a lot of ajax in the future
 }
 
-function tscmod_next_url(){
+function tscmod_next_url(){ //gives the url for the next module (next greatest modnumber)
 	global $post;
 	$custom = get_post_custom($post->ID);
 	$modnumber = $custom['modnumber'][0];
-	if( empty($modnumber) ) $modnumber = 0;
+	if( empty($modnumber) ) $modnumber = 0; //this is probably the parent page, so start the modules
 	$modules = tscmod_list_modules();
 	if( is_array($modules) ){
 		foreach($modules as $module => $info){
 			$othermodnumber = $info['number'];
-			if((int)$othermodnumber > (int)$modnumber){
+			if((int)$othermodnumber > (int)$modnumber){ //get the next biggest modnumber please
 				return get_permalink( $info['ID'] );
 			}
 		}
 	}
-	return get_home_url();
+	return get_home_url(); //send them home if there are no more
 }
 
 ?>
