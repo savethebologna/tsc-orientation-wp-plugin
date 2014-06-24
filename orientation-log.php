@@ -1,7 +1,6 @@
 <?php
 //Create the Custom Post Type
-add_action('init', 'orientation_log_register');  
- 
+add_action('init', 'orientation_log_register');
 function orientation_log_register() {  
     
     //Arguments to create post type.
@@ -52,7 +51,7 @@ padding-left:5px;
 .orientation_log_extras div{
 margin: 10px 0;
 font-size:1em;
-height:2em;
+min-height:2em;
 }
 .orientation_log_extras div label,.orientation_log_extras div p{
 width: 180px;
@@ -66,22 +65,20 @@ vertical-align:middle;
 width:180px;
 }
 </style>
+<?php
+$modules = load_module_results($post);
+echo create_module_dropdown_script($modules,'displaymodules',true);
+?>
 <div class="orientation_log_extras">
-	<?php
-		$mod = load_module_results($post);
-		if(is_array($mod)) {
-			foreach ( $mod as $key => $result ) {
-				print '<div><label>'.$key.':</label><input name="mod_'.$key.'" value="'.$result.'" /></div>';
-			}
-		} else {
-			print
-				'<div><strong>Important:</strong> If you are reading this, no results have been saved yet.
-				You may have clicked "New Post" to create this rather than letting this happen automatically through the training modules.
-				If you really want to have made this post yourself, it will not be attached to a user and must be manually marked as private.</div>';
-		}
-	?>
-	ADD CUSTOM RESULT - Both fields <strong>required</strong> to save:
-	<div><label><input name="new_mod_key" value="" placeholder="Module Name" /></label><input name="new_mod_result" value="" placeholder="Result or Score" /></div>
+<?php if( !create_module_dropdown($modules) ) {
+		echo
+			"<div style='height:auto;'><strong>Important:</strong> No results have been saved yet.
+			You may have clicked \"New Post\" to create this rather than letting this happen automatically through the training modules.
+			If you really want to have made this post yourself, it will not be attached to the activities of a user unless the slug is the set as their username.</div>";
+	} ?>
+	<span id="displaymodules"></span>
+	<p>ADD CUSTOM RESULT - Both fields <strong>required</strong> to save:</p>
+	<div><label><input name="new_tscmod_key" placeholder="Module Name" /></label><input name="new_tscmod_result" placeholder="Result or Score" /></div>
 	<input type="hidden" name="prevent_delete_meta_movetotrash" id="prevent_delete_meta_movetotrash" value="<?php echo wp_create_nonce(plugin_basename(__FILE__).$post->ID); ?>" />
 </div>
 <?php 
@@ -94,18 +91,27 @@ function orientation_save_meta($post_id, $post){
 	if (!wp_verify_nonce($_POST['prevent_delete_meta_movetotrash'], plugin_basename(__FILE__).$post->ID) || defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ){ //if you remove this the sky will fall on your head.
 		return $post_id;
 	}else{
-		foreach( $_POST as $mod_key => $result ){
-			$pos = strpos($mod_key , "mod_");
-			$pos2 = strpos($mod_key , "new_mod_result");
-			if ( $pos === 0 && $result != ''){
-				$key = str_replace( 'mod_' , '' , $mod_key );
-				$resultsarray[$key] = $result;
-			}elseif ( $pos2 === 0 && $result != ''){
-				$key = $_POST['new_mod_key'];
-				if($key != '') { $resultsarray[$key] = $result; }
+		foreach( $_POST as $fullkey => $result ){
+			$pos = strpos($fullkey , "tscmod_");
+			$pos2 = strpos($fullkey , "new_tscmod_result");
+			if( !is_array( $custommeta ) ) $custommeta = array();
+			if( $pos === 0 && $result != ''){
+				$keyunits = explode( '_', $fullkey );
+				$module = $keyunits[1];
+				$modulekey = 'tscmod_'.$keyunits[1];
+				$key = $keyunits[2];
+				$custommeta[$modulekey][$key] = $result;
+			}
+			if( $pos2 === 0 && $result != ''){
+				$customkey = $_POST['new_tscmod_key'];
+				if($customkey != '') $custommeta['tscmod_custom-addition'][$customkey] = $result;
 			}
 		}
-	update_post_meta($post->ID, "mod", $resultsarray);
+		if( is_array( $custommeta ) ) {
+			foreach( $custommeta as $module => $results ){
+				update_post_meta($post->ID, $module, $results);
+			}
+		}
     }
 }
 ?>
