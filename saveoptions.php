@@ -1,4 +1,8 @@
 <?php
+
+//AJAX PAGE
+//This page may be merged into options.php and AJAX removed.
+//Alternatively, any saving on options.php may move to AJAX.
 function find_wp_config_path() {
 	$dir = dirname(__FILE__);
 	do {

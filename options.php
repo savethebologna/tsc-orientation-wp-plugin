@@ -72,7 +72,6 @@ cursor:auto;
 </style>
 <div class="wrap">
 <h2>TSC Testing Plugin</h2>
-
 <div class="center">
 	<div id="tscmod_reorder" class="postbox">
 		<div class="inside">
@@ -118,13 +117,17 @@ cursor:auto;
 				</select>
 <?php settings_fields( 'tscmod_settings_group' ); ?>
 				<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Save Changes" /></p>
+<!--I HAVE NO IDEA WHY THIS DIV MOVES WHEN SUBMIT IS CLICKED IN CHROME-->
+<!--Additionally, its placement is weird, but again without a known reason-->
 			</form>
 		</div>
 	</div>
 	<div style="display:none" id="hidden_form_elements"></div>
 </div>
 </div>
+<!--JS for Drag/Drop sorting for module order-->
 	<script src="<?php echo plugins_url( 'jquery.sortable.min.js' , __FILE__ ); ?>"></script>
+<!--MODULE ORDER AJAX SCRIPT-->
 	<script>
 	jQuery('.tscmod_sortable').sortable();
 	jQuery('#submit').on('click', tscmodUpdateOptionsByPOST);
@@ -163,4 +166,5 @@ cursor:auto;
 		});
 	}
 	</script>
+<!--END MODULE ORDER AJAX SCRIPT-->
 <?php } ?>
