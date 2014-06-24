@@ -191,6 +191,10 @@ function find_consultant( $RID, $fullname ){
 	}
 	
 	return $post_id;
+	//There's a bug when the consultant is trashed.
+	//The slug cannot be found in the trash, but is unusable since it is not deleted.
+	//Many additional posts are made with increasing numbers on the end of the expected slug.
+	//This is not a problem until posts are deleted. This should be fixed for production.
 }
 
 function tsc_submit_data( $consultant_id ){
