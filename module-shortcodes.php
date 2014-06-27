@@ -1,10 +1,30 @@
 <?php
 //Shortcode register
+add_shortcode( 'tsc_embed' , 'tsc_shortcode_embed' );
 add_shortcode( 'tsc_accept' , 'tsc_shortcode_accept' );
 add_shortcode( 'tsc_mc' , 'tsc_shortcode_mc' );
 add_shortcode( 'tsc_cb' , 'tsc_shortcode_cb' );
 add_shortcode( 'tsc_comments' , 'tsc_shortcode_comments' );
+add_shortcode( 'tsc_orientation_comments' , 'tsc_shortcode_orientation_comments' );
 add_shortcode( 'tsc_continue' , 'tsc_shortcode_continue' );
+
+function tsc_shortcode_embed( $atts, $content ){
+	//Set defaults for attributes
+	extract( shortcode_atts( array(
+		'side' => 'right',
+	), $atts, 'tsc_embed' ) );
+	
+	if( $side == 'right' ){
+		$embed = "<p style='float:right;margin: 5px 0 5px 5px'>";
+	}else{
+		$embed = "<p style='float:left;margin: 5px 5px 5px 0'>";
+	}
+
+	$embed .= do_shortcode( '[embed height="350"]'.$content.'[/embed]' );
+	$embed .= "</p>";
+	
+	return $embed;
+}
 
 function tsc_shortcode_accept( $atts, $content ){
 	//Set defaults for attributes
@@ -76,8 +96,33 @@ function tsc_shortcode_cb( $atts, $content ){
 function tsc_shortcode_comments( $atts, $content ){
 	//Set defaults for attributes
 	$atts = shortcode_atts( array(
-		'required' => 'no'
+		'require' => 'no'
 	), $atts, 'tsc_comments' );
+	
+	global $post;
+	$name = tsc_shortcode_init();
+	
+	if( $require == 'yes' && $correct != 'nonecorrect' ) {
+		$required = 'required';
+	} else {
+		$required = '';
+	}
+		
+	//If shortcode has content, we should use it
+	if( $content != "" ){
+		$echovalue .= '<p>'.$content.'<br><textarea name="'.$name.'-modulecomment" style="width:100%;" '.$required.'></textarea></p>';
+	} else {
+		$echovalue .= '<p>Questions/comments for this module:<br><textarea name="'.$name.'-modulecomment" style="width:100%;" '.$required.'/></textarea></p>';
+	}
+	
+	return $echovalue;
+}
+
+function tsc_shortcode_orientation_comments( $atts, $content ){
+	//Set defaults for attributes
+	$atts = shortcode_atts( array(
+		'require' => 'no'
+	), $atts, 'tsc_orientation_comments' );
 	
 	global $post;
 	$name = tsc_shortcode_init();
@@ -163,7 +208,8 @@ function tsc_shortcode_init(){
 	if( $sccount == 1 ) echo '<div id="tsc_form"><form method="post" autocomplete="off" action="" name="tscmod_form">';
 
 	$post_name = $post->post_name;
-	return $post_name.'-'.$sccount; //field names will be "post_slug-item_number"
+	$post_id = $post->ID;
+	return $post_name.'-'.$post_id.'-'.$sccount; //field names will be "post-slug-postid-itemnumber"
 }
 
 function find_consultant( $RID, $fullname ){
@@ -199,18 +245,20 @@ function find_consultant( $RID, $fullname ){
 
 function tsc_submit_data( $consultant_id ){
 	global $post;
-	global $name;
 	$post_name = $post->post_name;
+	$post_id = $post->ID;
 	
 	if( isset( $_POST['tsc_submit'] ) ){ //if form data was sent
 		foreach( $_POST as $fullkey => $result ){ //read off each value
-			$pos = strpos($fullkey , $post_name); //keep only the ones that matter to us ("tsc_")
-			if ( $pos === 0 && $result != '' && !empty( $result ) ){
-				$key = str_replace( $post_name.'-', '', $fullkey ); //remove tsc_
+			$pos = strpos($fullkey , $post_name); //keep only the ones that matter to us (post slug)
+			if( $pos === 0 && $result != '' && !empty( $result ) ){
+				$key = str_replace( $post_name.'-', '', $fullkey ); //remove post slug
+				$comments = strpos( $fullkey, '-modulecomment' );
+					if( $comments !== false ){ $result = str_replace(array("\r", "\n"), " ", $result); }
 				$resultsarray[$key] = $result; //make an array with the values
 			}
 		}
-		$module = 'tscmod_'.$post_name; //the array which stores the results should include identifying info
+		$module = 'tscmod_'.$post_id.'_'.$post_name; //the array which stores the results should include identifying info
 		update_post_meta( $consultant_id, $module, $resultsarray ); //save it as custom metadata
 		if( !empty($_POST['tsc_comments']) ){ //add the comments to the content, if any
 			$date = date ( 'M d, Y');

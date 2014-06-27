@@ -5,7 +5,11 @@ Template Name: Orientation Modules
 ?>
 
 <?php get_header(); ?>
-
+<style>
+#primary{
+width:100%;
+}
+</style>
 	<div id="primary" class="site-content">
 		<div id="content" role="main">
 			

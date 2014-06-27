@@ -52,20 +52,6 @@ function create_module_template( $module_template ){
     return $module_template;
 }
 
-//Create an easy means for preparing module variables
-function load_module_results($consultant){
-	$custom = get_post_custom($consultant->ID);
-	foreach( $custom as $mod => $resultstring ){
-		$pos = strpos( $mod, 'tscmod_' );
-		if( $pos === 0 ){
-			$mod_name = str_replace( 'tscmod_', '', $mod );
-			$resultarray = maybe_unserialize($resultstring[0]);
-			$modules[$mod_name] = $resultarray;
-		}
-	}
-	return $modules;
-}
-
 //load a list of the module pages
 function tscmod_list_modules(){
 	global $parent_page;
@@ -98,20 +84,38 @@ function tscmod_list_modules(){
 	return $modulesarray;
 }
 
+//Create an easy means for preparing module variables
+function load_module_results($consultant){
+	$custom = get_post_custom($consultant->ID);
+	foreach( $custom as $mod => $resultstring ){
+		$pos = strpos( $mod, 'tscmod_' );
+		if( $pos === 0 ){
+			$mod_name = str_replace( 'tscmod_', '', $mod );
+			$resultarray = maybe_unserialize($resultstring[0]);
+			$modules[$mod_name] = $resultarray;
+		}
+	}
+	return $modules;
+}
+
 //Makes a dropdown with each module name in it
 //Used alongside load_module_results($post) and js to load module results usually
 function create_module_dropdown($modules){
 	if(is_array($modules)) {
-		echo "<select name='moduleDropdown' onChange='handleSelect(this.value)'>
+		echo "<p>
+			<select name='moduleDropdown' onChange='handleSelect(this.value)'>
 			<option value='' selected>Choose a module</option>";
 		foreach ( $modules as $module => $resultarray ) {
-			echo '<option value="'.$module.'">'.$module.'</option>';
+			$moduleels = explode('_',$module);
+			$moduleid = $moduleels[0];
+			$moduletitle = get_the_title($moduleid);
+			echo '<option value="'.$module.'">'.$moduletitle.'</option>';
 		}
-		echo "</select>";
+		echo "</select></p>";
 		return true;
 	}else{
 		return false;
-	}
+	} 
 }
 
 //add script for dropdown toggle
@@ -123,9 +127,19 @@ function create_module_dropdown_script($modules,$div,$input){
 			$echovalue .= "case \"".$module."\":\ndocument.getElementById('".$div."').innerHTML = \"".$displaytext;
 			if( is_array($resultarray) ){
 				if( $input == true || $input == 'yes' ){
-					foreach ( $resultarray as $key => $result ) { $echovalue .= "<div><label>".$key.":</label><input name='tscmod_".$module."_".$key."' value='".$result."' /></div>"; }
+					foreach ( $resultarray as $key => $result ) {
+						$echovalue .= "<div><label>".$key.":</label><input name='tscmod_".$module."_".$key."' value='".$result."' /></div>";
+					}
 				}else{
-					foreach ( $resultarray as $key => $result ) { $echovalue .= "<div>".$key.": ".$result."</div><br>"; }
+					foreach ( $resultarray as $key => $result ) {
+						$questionels = explode( '-', $key );
+						$last = count($questionels) - 1;
+						if( $questionels[$last] === 'comments' ){
+							$echovalue .= "<div>User Comments: ".$result."</div><br>";
+						}else{
+							$echovalue .= "<div>Question ".$questionels[$last].": ".$result."</div><br>";
+						}
+					}
 				}
 			}else{
 				$echovalue .= '<div>There are no results for this module.</div>';
