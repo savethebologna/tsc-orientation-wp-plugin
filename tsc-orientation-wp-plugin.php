@@ -1,6 +1,6 @@
 <?php
 	/*
-	Plugin Name: TSC Testing Plugin
+	Plugin Name: TSC Orientation WordPress Plugin
 	Plugin URI: http://goreschak.com/tsc
 	Description: This plugin powers the TSC training modules and orientation log. Training may be tracked through the Orientation Log custom post type.
 	Author: Justin J. Goreschak
