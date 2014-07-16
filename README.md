@@ -1,4 +1,5 @@
-=== @TODO: Plugin Name ===
+=== @TODO: TSC Orientation Plugin for WordPress ===
+
 Contributors: savethebologna
 Tags: orientation, business, testing
 Requires at least: Unsure
@@ -37,7 +38,7 @@ An answer to that question.
 * Initial Release - Current
 * Changes were made to how the plugin keeps track of "consultants"
 
-= <1.0 =
+= Less than 1.0 =
 * Very Unstable & Nearly Useless
 
 == Upgrade Notice ==
