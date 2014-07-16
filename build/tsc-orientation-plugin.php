@@ -106,6 +106,7 @@ function create_module_dropdown($modules){
 			$moduleels = explode('_',$module);
 			$moduleid = $moduleels[0];
 			$moduletitle = get_the_title($moduleid);
+			if( empty($moduletitle) ){ $moduletitle = "-Deleted Module-"; }
 			echo '<option value="'.$module.'">'.$moduletitle.'</option>';
 		}
 		echo "</select></p>";
