@@ -346,11 +346,22 @@ function tsc_shortcode_continue( $atts, $content ){
 		$echovalue .= '</form></div>';
 		
 		if( tsc_submit_data( $consultant_ID ) === true ) {
-			$echovalue .= '<style>#tsc_form{display:none;}</style>
-			<div id="tsc_submitted">
-				<p>Module submitted successfully. Please click "Next Module" to continue.</p>
-				<a href="'.tscmod_next_url().'"><input type="button" value="Next Module" /></a>
-			</div>';
+			global $parent_page;
+			$parents = get_post_ancestors($post->ID);
+			$parent_id = get_page($parents[0])->ID;
+			if ( $parent_page == $parent_id ) {
+				$echovalue .= '<style>#tsc_form{display:none;}</style>
+				<div id="tsc_submitted">
+					<p>Module submitted successfully. Please click "Next Module" to continue.</p>
+					<a href="'.tscmod_next_url().'"><input type="button" value="Next Module" /></a>
+				</div>';
+			}else{
+				$echovalue .= '<style>#tsc_form{display:none;}</style>
+				<div id="tsc_submitted">
+					<p>Thank you! Your responses have been successfully recorded.</p>
+					<a href="javascript:window.location.href=window.location.href"><input type="button" value="Return to Post" /></a>
+				</div>';
+			}
 		}
 	}
 	return $echovalue;
