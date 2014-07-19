@@ -105,7 +105,7 @@ cursor:auto;
 				<select class="tscmod_pages" name="tscmod_parent_page">
 <?php
 	global $parent_page;
-	$pages = get_pages(); 
+	$pages = get_pages();
 	foreach ( $pages as $page ) {
 		if($parent_page === $page->ID){ $selected = "selected"; }else{ $selected = ""; }
 		$option = '<option value="' . $page->ID . '" '.$selected.'>';
