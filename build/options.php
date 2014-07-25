@@ -5,8 +5,21 @@ add_action('admin_menu', 'tscmod_create_menu');
 function tscmod_create_menu() {
 
 	//create new top-level menu
-	add_menu_page('TSC Testing Plugin', 'Testing Settings', 'delete_pages', __FILE__, 'tscmod_settings_page','dashicons-forms');
+	$hooksuffix = add_menu_page('TSC Testing Plugin', 'Testing Settings', 'delete_pages', __FILE__, 'tscmod_settings_page','dashicons-forms');
 
+	//get jquery, the sortable plugin, and some custom jquery ready
+	add_action( 'load-' . $hooksuffix, 'hook_tsc_scripts' );
+	function hook_tsc_scripts(){
+		add_action( 'admin_enqueue_scripts', 'enqueue_tsc_scripts' );
+		function enqueue_tsc_scripts(){
+			wp_register_script( 'jqsortable', plugins_url( 'jquery.sortable.min.js', __FILE__ ), array('jquery') );
+			wp_register_script( 'sortmodules', plugins_url( 'sortmodules.js', __FILE__ ), array('jqsortable') );
+			$passtosortmodules = array( 'saveurl' => plugins_url( 'saveoptions.php', dirname(__FILE__) ) );
+			wp_localize_script( 'sortmodules', 'wp_tsc_object', $passtosortmodules );
+			wp_enqueue_script( 'sortmodules' );
+		}
+	}
+	
 	//call register settings function
 	add_action( 'admin_init', 'register_mysettings' );
 }
@@ -37,7 +50,6 @@ box-shadow: 0 1px 1px rgba(0,0,0,.04);
 .tscmod_sortable li{
 font-size:1.3em;
 display:block;
-height:2em;
 background-color: #fff;
 text-align:center;
 line-height:2em;
@@ -105,7 +117,7 @@ cursor:auto;
 				<select class="tscmod_pages" name="tscmod_parent_page">
 <?php
 	global $parent_page;
-	$pages = get_pages(); 
+	$pages = get_pages();
 	foreach ( $pages as $page ) {
 		if($parent_page === $page->ID){ $selected = "selected"; }else{ $selected = ""; }
 		$option = '<option value="' . $page->ID . '" '.$selected.'>';
@@ -126,45 +138,5 @@ cursor:auto;
 </div>
 </div>
 <!--JS for Drag/Drop sorting for module order-->
-	<script src="<?php echo plugins_url( 'jquery.sortable.min.js' , __FILE__ ); ?>"></script>
-<!--MODULE ORDER AJAX SCRIPT-->
-	<script>
-	jQuery('.tscmod_sortable').sortable();
-	jQuery('#submit').on('click', tscmodUpdateOptionsByPOST);
-	function tscmodUpdateOptionsByPOST(){
-		jQuery('#savestate').removeClass('hidden');
-		var pathname = document.URL;
-		var tscmodForm = document.createElement('form');
-		tscmodForm.action = pathname;
-		tscmodForm.method = 'post';
-		tscmodForm.id = 'tscmod_hidden_order_form';
-		var tscmodInput = [];
-		jQuery('.tscmod_sortable > li').each(function(i,j){
-			i++;
-			jQuery(this).attr('data-modnumber', i);
-			var modnumber = jQuery(this).attr('data-modnumber');
-			var modid = jQuery(this).attr('data-modid');
-			tscmodInput[i] = document.createElement('input');
-			tscmodInput[i].type = 'hidden';
-			tscmodInput[i].name = 'tscmodid_' + modid;
-			tscmodInput[i].value = modnumber;
-			tscmodForm.appendChild(tscmodInput[i]);
-		});  
-		try { document.getElementById('tscmod_hidden_order_form').remove(); } catch(err) {  } //do nothing if there's a problem
-		document.getElementById('hidden_form_elements').appendChild(tscmodForm);
-		var posting = jQuery.post( '<?php echo plugins_url( 'saveoptions.php' , __FILE__ ); ?>', jQuery('#tscmod_hidden_order_form').serialize() );
-		posting.done(function( data ) {
-			var content = jQuery( data ).find('#saveresult');
-			jQuery('#saving').empty().append(data);
-			jQuery('#savestate > .spinner').addClass('hidden');
-			jQuery('#savestate').fadeOut(5000, 'swing', function(){
-				jQuery('#savestate').addClass('hidden');
-				jQuery('#savestate > .spinner').removeClass('hidden');
-				jQuery('#savestate').css('display','block');
-				jQuery('#saving').empty().append('saving');
-			});
-		});
-	}
-	</script>
-<!--END MODULE ORDER AJAX SCRIPT-->
+
 <?php } ?>
