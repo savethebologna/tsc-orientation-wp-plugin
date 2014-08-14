@@ -4,7 +4,7 @@
 	Plugin URI: http://github.com/savethebologna/tsc-orientation-wp-plugin
 	Description: This plugin powers the TSC training modules and orientation log. Training may be tracked through the Orientation Log custom post type.
 	Author: Justin J. Goreschak
-	Version: 1.0.2
+	Version: 1.0.3
 	Author URI: http://goreschak.com
 	*/
 
