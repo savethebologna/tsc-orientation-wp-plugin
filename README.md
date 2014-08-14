@@ -34,6 +34,12 @@ An answer to that question.
 
 == Changelog ==
 
+= 1.0.3 =
+* Fix paths broken when the enqueue scripts were added.
+
+= 1.0.2 =
+* Enqueue scripts.
+
 = 1.0.1 =
 * Fixed missing and misplaced files.
 
@@ -41,10 +47,10 @@ An answer to that question.
 * Initial Release
 * Changes were made to how the plugin keeps track of "consultants"
 
-= Prior to 1.0 =
-* Very Unstable & Nearly Useless
-
 == Upgrade Notice ==
+
+= 1.0.3 =
+* Fixes bugs introduced in version 1.0.2 which result in 404 errors.
 
 = 1.0.1 =
 * Turns out, version 1.0 was also broken. Added back shortcodes and some missing assets.
