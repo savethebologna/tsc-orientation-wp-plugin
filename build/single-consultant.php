@@ -28,7 +28,7 @@ get_header();
 				<p>You do not have sufficient privileges to view this page.</p>
 				<br>
 				<p>See an administrator if you believe this is in error. View source for more information.</p>
-				<!--You must have at least and "Editor" role, otherwise there is an error in the TSC Testing Plugin (single-consultant.php).-->
+				<!--You must have at least and "Editor" role. Otherwise there has been an error in the TSC Testing Plugin (single-consultant.php).-->
 <?php
 	}
 ?>
