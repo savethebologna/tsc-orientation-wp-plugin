@@ -14,7 +14,7 @@ function tscmod_create_menu() {
 		function enqueue_tsc_scripts(){
 			wp_register_script( 'jqsortable', plugins_url( 'jquery.sortable.min.js', __FILE__ ), array('jquery') );
 			wp_register_script( 'sortmodules', plugins_url( 'sortmodules.js', __FILE__ ), array('jqsortable') );
-			$passtosortmodules = array( 'saveurl' => plugins_url( 'saveoptions.php', dirname(__FILE__) ) );
+			$passtosortmodules = array( 'saveurl' => plugins_url( 'saveoptions.php', __FILE__ ) );
 			wp_localize_script( 'sortmodules', 'wp_tsc_object', $passtosortmodules );
 			wp_enqueue_script( 'sortmodules' );
 		}

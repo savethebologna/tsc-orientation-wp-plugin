@@ -23,7 +23,6 @@ function orientation_log_register() {
 		),
         'has_archive' => true,
         'supports' => array('title', 'editor'),
-        'rewrite' => array('slug' => 'consultant', 'with_front' => false),
        );
 	   
   	//Register post type.
